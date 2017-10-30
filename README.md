@@ -39,15 +39,15 @@ It then provides as output a set of waypoints to follow.
 The Path Planning module is typically decomposed into the following set of sub-modules:
 * **predictions:** will predict the trajectories of the surrounding detected objects
 * **behavior planner:** will define a set of candidate high level targets for the vehicle to follow (lane changes, slow down ...)
-* **trajectories generation:** for every possible high level targets, a percise path to follow will be computed  
-* **trajectories cost ranking:** for each trajectory a cost will be derived (depending on feasibility, safety, legality, comfort and efficiency) and the trajectory with the lowest cost will be chosen  
+* **trajectories generation:** for every possible high level targets, a precise path to follow will be computed  
+* **trajectories cost ranking:** for each trajectory a cost will be derived (depending on feasibility, safety, legality, comfort and efficiency, in decreasing order of priority) and the trajectory with the lowest cost will be chosen  
 
 The driving policy is typically defined by these cost functions. It can be tuned to have a very conservative driving experience (which is the case in the below implementation: keep a rather big safety distance with the vehicule in front of you, do lane changes only when there is lots of free space on the target lane...) or it can be tuned to target a more speedy driving experience (making lots of lane changes as soon as possible to drive as fast as possible...)
 
 In the below implementation, the behavior planner is not implemented as a Finite States Machine and is not taking a decision right away like lane change or not but it rather defines several possible targets. It will be up to the cost function to choose the best decision based on its applicability: i.e. based on a cost function evaluation of the generated trajectories.  
 
 The main reference for the below implementation is the following paper:  
-**"Optimal Trajectory Generation for Dynamic Street Scenarios in a Frenet Frame" from Moritz Werling and all** https://pdfs.semanticscholar.org/0e4c/282471fda509e8ec3edd555e32759fedf4d7.pdf   
+**"Optimal Trajectory Generation for Dynamic Street Scenarios in a Frenet Frame" from Moritz Werling et al.** https://pdfs.semanticscholar.org/0e4c/282471fda509e8ec3edd555e32759fedf4d7.pdf   
 
 
 <p align="center">
@@ -56,8 +56,8 @@ The main reference for the below implementation is the following paper:
 </p>
 
 In the code excerpt below we do the following:
-* **generate predictions:** based on sensor fusion information, we locate for every lane the closest car in front and behind the ego vehicule. This provides a sort of basic scene detection or summary. For these objects we extrapolate the trajectories up to a specific horizon (typically 1 second)  
-* **the behavior planner defines candidate targets**: a set of candidate {target_lane, target_speed, target_time for maneuver }
+* **generate predictions:** based on sensor fusion information, we locate for every lane the closest car in front of and behind the ego vehicule. This provides a sort of basic scene detection or summary. For these objects we extrapolate the trajectories up to a specific horizon (typically 1 second)  
+* **the behavior planner defines candidate targets**: a set of candidate {target_lane, target_speed, target_time for maneuver}
 * **for every candidate targets a trajectory is computed**
 * **for every candidate trajectories a cost is computed**
 * **the trajectory with the lowest cost is chosen**  
@@ -148,7 +148,7 @@ The reference curve is depicted below: it is the center line of a circular track
   
 In terms of thinking, lane change or not, forward progress of the vehicule, ... it is much more convenient to think in terms of Frenet (s, d) coordinates rather than in Cartesian (x, y) coordinates.  
   
-So a key point in the implementation isÂ being able to do accurate (x, y) -> (s, d) -> (x, y) transformations.   
+So a key point in the implementation is being able to do accurate (x, y) -> (s, d) -> (x, y) transformations.   
 It is even more important if you plan to generate trajectories in the Frenet space like described in the paper from Moritz Werling.  
 Unfortunatelly the starter code provided initially for these conversions was not accurate enough to generate trajectories in the Frenet space: checking by converting back and forth to (x, y) coordinates, we get sometimes errors bigger than 10 meters. So I spent some time to improve these coordinate transforms.  
 
@@ -164,7 +164,7 @@ We are provided with x(t), s(t) and compute a x(s) spline.
 We are provided with y(t), s(t) and compute a y(s) slpine.    
 We are provided with dx(t), s(t) and compute a dx(s) spline.  
 We are provided with dy(t), s(t) and compute a dy(s) slpine.  
-dx and dy rekate to x and y component of the normal vector (misleading names ...)  
+dx and dy relate to x and y component of the normal vector (misleading names ...)  
 From there doing a (s, d) -> (x, y) conversion is very simple: cf code below.   
 
 ```cpp
@@ -178,12 +178,12 @@ vector<double> Map::getXYspline(double s, double d)
 }
 ```
 
-Two fixes were done in the NextWaypoint code which had some issues at s wraparound:  
+Two fixes were done in the NextWaypoint code which had some issues at a wraparound:  
 https://waffle.io/udacity/sdc-issue-reports/cards/59e8ee756ff7e100813ad856  
 
 While driving a full track it can be checked now that the conversions error (x, y) -> (s, d) -> (x, y) are now on average around 0.6 meters (with a peak at 1.2 meters) which is well below the initial more than 10 meters error. I think this is probably the main reason why most of Udacity students reported issues while trying to work with JMT (s, d) frenet trajectories generations and finally went back to generate spline X, Y trajectories: where the dependency on the conversion functions is much lower.  
 
-As a final note, I am wondering if the accuracy of the conversions could be further improved, but the fact that the map is  provided as a discrete set of 30 meters spaced points may prevent us for getting a perfect accuracy when doing frenet <-> cartesian conversions.    
+As a final note, I am wondering if the accuracy of the conversions could be further improved, but the fact that the map is provided as a discrete set of 30 meters spaced points may prevent us for getting a perfect accuracy when doing frenet <-> cartesian conversions.    
 
 ### Predictions
 
@@ -194,7 +194,7 @@ Thanks to the sensor fusion information, a speed estimate is provided and used t
 
 These predictions will be used later on to check for potential collisions and safety distances and evaluate whether a lane is a good target or not e.g. depending on the presence and/or speed of cars in these lanes.  
   
- So we use here a pure model based approach for the predictions. This could be improved and should be improved later on especially when dealing with more complex environments like city traffic or crossing roads: as depicted in the picture below different potential tracks for every surrounding object could be estimated and associated with probabilities that would evolve as we get more evidences related to a specific maneuver. And here typically machine learning and deep learning techniques could be used: which can lead to using a combined data driven and model based approach to generate predictions and associated probabilities.  
+So we use here a pure model based approach for the predictions. This could be improved and should be improved later on especially when dealing with more complex environments like city traffic or crossing roads: as depicted in the picture below different potential tracks for every surrounding object could be estimated and associated with probabilities that would evolve as we get more evidences related to a specific maneuver. And here typically machine learning and deep learning techniques could be used: which can lead to using a combined data driven and model based approach to generate predictions and associated probabilities.  
 
 <p align="center">
      <img src="./img/predictions.png" alt="pipeline" width="50%" height="50%">
@@ -210,9 +210,9 @@ The first possible target will relate to adjusting the speed in our lane and kee
 
 Then other targets are proposed: for every other adjacent lane. Then for every lane target, the behavior planner proposes a speed target corresponding to either our current lane speed target or a slower speed.  
 
-So this typically provide a set of at most 9 targets, assuming you are in the midlle lane with 3 speed targets (max acceleration, constant speed, max deceleration) per lane.  
+So this typically provides a set of at most 9 targets, assuming you are in the middle lane with 3 speed targets (max acceleration, constant speed, max deceleration) per lane.  
 
-Later on a trajectory for every possible target wil be computed and they will be ranked against some cost functions to choose the best option.  
+Later on, a trajectory for every possible target will be computed and they will be ranked against some cost functions to choose the best option.  
 
 <p align="center">
      <img src="./img/behavior.png" alt="pipeline" width="50%" height="50%">
@@ -228,13 +228,13 @@ The trajectories can be generated in 2 different ways:
 * in (x, y) coordinates by using spline functions.
 * in (s, d) coordinates by using the Jerk Minimizing Trajectory approach described in the paper from Moritz Werling.
 
-The first method is the one proposed in the walk through video of the project where s and d coordinates are used only to define the final target eg a s of 30 meters away with a d corresponding to the target lane. But then, this target point is converted into (x, y) coordinates and a trajectory going from the start point up to the end point (in cartesian coordinates) is computed by using splines. Using splines ensures that continuity is preserved for the generated trajectory and its 1st and 2nd derivatives: so we guarantee continuity in terms of trajectory, speed and acceleration including end points and previous trajectory. The advantage of this method is that it works pretty well even if the (s, d) estimates are not that accurate as it mainly works in (x, y) coordinates and most of the maths is handled via the C++ spline library which is very simple to use. In terms of drawbacks, it does not guarantee Minimum Jerk which is related to maximum comfort for the user.  
+The first method is the one proposed in the walk through video of the project where s and d coordinates are used only to define the final target e.g. an s of 30 meters away with a d corresponding to the target lane. But then, this target point is converted into (x, y) coordinates and a trajectory going from the start point up to the end point (in cartesian coordinates) is computed by using splines. Using splines ensures that continuity is preserved for the generated trajectory and its 1st and 2nd derivatives: so we guarantee continuity in terms of trajectory, speed and acceleration including end points and previous trajectory. The advantage of this method is that it works pretty well even if the (s, d) estimates are not that accurate as it mainly works in (x, y) coordinates and most of the maths is handled via the C++ spline library which is very simple to use. In terms of drawbacks, it does not guarantee Minimum Jerk which is related to maximum comfort for the user.  
 
 So that is why in the lectures from Udacity & Daimler Benz of the Self Driving Car Nanodegree, an approach based on Jerk Minimization Trajectory is presented. This approach is described in details in the paper from Moritz Werling and has been implemented here. It is the 2nd method: JMT trajectory generation in (s, d) coordinates.  
   
- The starting point consists in trying to find a trajectory that has minimum jerk i.e. maximum comfort for the user. 
+The starting point consists in trying to find a trajectory that has minimum jerk i.e. maximum comfort for the user. 
  
- The jerk corresponds to variations in acceleration. So we are looking at the 3rd derivatives and we want to minimize the sum of these 3rd derivatives from t_start to t_end. As demonstrated in the folowing link http://www.shadmehrlab.org/book/minimum_jerk/minimumjerk.htm, **a Jerk Minimizing Trajectory has to be a quintic polynomial**.  
+The jerk corresponds to variations in acceleration. So we are looking at the 3rd derivatives and we want to minimize the sum of these 3rd derivatives from t_start to t_end. As demonstrated in the folowing link http://www.shadmehrlab.org/book/minimum_jerk/minimumjerk.htm, **a Jerk Minimizing Trajectory has to be a quintic polynomial**.  
    
  So we end up looking for:
  * a quintic polynomial for the longitudinal part: s(t) is a polynom of order 5
@@ -271,8 +271,8 @@ Now you may be wondering why are we then evaluating a trajectory for 50 points i
 After defining the start conditions we have to define proper end conditions.  
   
 For the lateral d(t) trajectory it is pretty simple. We define as end conditions:
-* df: a d corresponding to the center of the target lane
 * df_dot and df_ddot are set to zero: no variations at the end of our maneuver for the lateral movement.
+* df: a d corresponding to the center of the target lane
 
 For the longitudinal s(t) trajectory we define as end conditions:
 * sf_ddot = 0: no acceleration
@@ -383,12 +383,12 @@ Also we have predictions from sensor fusion informations that are in (x, y) coor
 
 ### Trajectories cost ranking
 
-cf cost.cp  
+cf cost.cpp
 
 Trajectories are ranked against a cost function. The cost function is decomposed into several sub-cost functions.  
 By decreasing order of importance, corresponding to decreasing cost weights, we can list:
 * feasibility cost: with respect to collision avoidance and vehicule capabilities ...
-* safety cost: perfering to keep some buffer distance, good visibility ...
+* safety cost: preffering to keep some buffer distance, good visibility ...
 * legality cost: complying to speed limits ...
 * comfort cost: minimizing jerk ...
 * efficiency cost: with respect to speed and time to goal ...
@@ -397,7 +397,7 @@ By decreasing order of importance, corresponding to decreasing cost weights, we 
 In the current implementation we are taking into account:
 * collision avoidance and safety distances: by checking the minimum distance between the predictions and the trajectory over a 1 second time horizon
 * capabilities cost: a function is provided to check for max velocity, acceleration and jerk associated to every candidate trajectory.
-* efficiency cost: we perfer higher target speeds (it is a short term speed)
+* efficiency cost: we prefer higher target speeds (it is a short term speed)
 * lane cost: we usually prefer staying in our lane (assuming other costs are equal) so we over penalize adjacent lanes when they are occupied (penality is based on distance wrt ego vehicule). And we give priority to "free lanes" without vehicle in Field Of View.
 
 **So it is a rather conservative driving policy, doing lane changes only when there is lots of free space in the target lane.**  
@@ -456,9 +456,9 @@ The configurable parameters are:
 * const double param_dt = 0.02; // 1 point every 0.02 s
 * const double param_lane_width = 4.0; // meters
   
-* const double param_max_speed = 22; // m.s-1
-* const double param_max_accel = 10; // m.s-2
-* const double param_max_jerk  = 10; // m.s-3 average jerk over 1 second
+* const double param_max_speed = 80/3.6; // m.s-1
+* const double param_max_accel = 10;     // m.s-2
+* const double param_max_jerk  = 10;     // m.s-3 average jerk over 1 second
 
 * const double param_fov = 70.0; // Field Of View
 
@@ -469,7 +469,7 @@ The configurable parameters are:
 * const double param_dist_collision = 2.75; // meters
   
 // reduce latency reaction, but account for simulator latency ...  
-// usualy 3 points consumed by simulator + 5 points margin (the simulator is still consuming new points)  
+// usually 3 points consumed by simulator + 5 points margin (the simulator is still consuming new points)  
 // => usually we are regenerating a new trajectory every 8 points (i.e. every 160 ms)  
   
 // it is the number of points kept in previous_path_x and previous_path_y. All other points will be re computed  
@@ -486,7 +486,7 @@ I would like to thank Udacity and their partners, mainly here in the context of 
 
 I have spent a lot of time on this project, learnt a lot and I am pretty happy with the result but there is nevertheless still much more work left to do...  
   
- Thinking about some possible next steps and topics for further improvement, I would list:  
+Thinking about some possible next steps and topics for further improvement, I would list:  
  * driving policy (via cost functions) that targets maximal speed: to be tested on Bosch challenge tracks as well. This should be fun to do.
  * MPC (Model Predictive Control) integration: so we have path planning and control command tested together. The combined testing of path planning and command and control is very important.
  * emergency braking or emergency collision avoidances: in some cases other vehicules randomly merge into our lane even when we are dangerously close. So we have remaining potential collisions; even if they are quite rare. But quite rare is too much when dealing with cars... So we should further check if and how we could improve our collision avoidance scheme in emergency situations.  
