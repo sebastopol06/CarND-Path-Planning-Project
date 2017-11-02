@@ -10,15 +10,12 @@ using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-
-
-
 struct trajectory_jmt JMT_init(double car_s, double car_d)
 {
   struct trajectory_jmt traj_jmt;
   // 50 x {s, s_dot, s_ddot}
-  vector<vector<double>> store_path_s(PARAM_NB_POINTS, {0, 0, 0});
-  vector<vector<double>> store_path_d(PARAM_NB_POINTS, {0, 0, 0});
+  t_traj store_path_s(PARAM_NB_POINTS, {0, 0, 0});
+  t_traj store_path_d(PARAM_NB_POINTS, {0, 0, 0});
 
   for (int i = 0; i < PARAM_NB_POINTS; i++)
   {
@@ -108,12 +105,12 @@ double polyeval_ddot(vector<double> c, double t) {
 
 
 
-struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel, double target_time, Map &map, double car_x, double car_y, double car_yaw, double car_s, double car_d, vector<double> &previous_path_x, vector<double> &previous_path_y, int prev_size, vector<vector<double>> &prev_path_s, vector<vector<double>> &prev_path_d)
+struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel, double target_time, Map &map, double car_x, double car_y, double car_yaw, double car_s, double car_d, vector<double> &previous_path_x, vector<double> &previous_path_y, int prev_size, t_traj &prev_path_s, t_traj &prev_path_d)
 {
   struct trajectory_jmt traj_jmt;
 
-  vector<vector<double>> new_path_s(PARAM_NB_POINTS, {0, 0, 0});
-  vector<vector<double>> new_path_d(PARAM_NB_POINTS, {0, 0, 0});
+  t_traj new_path_s(PARAM_NB_POINTS, {0, 0, 0});
+  t_traj new_path_d(PARAM_NB_POINTS, {0, 0, 0});
 
   //cout << "prev_size=" << prev_size << endl;
   //int last_point = PARAM_NB_POINTS - prev_size - 1;
@@ -234,7 +231,7 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
 
 
 
-vector<vector<double>> generate_trajectory(int target_lane, double target_vel, double target_time, Map &map, double car_x, double car_y, double car_yaw, double car_s, double car_d, vector<double> &previous_path_x, vector<double> &previous_path_y, int prev_size)
+t_traj generate_trajectory(int target_lane, double target_vel, double target_time, Map &map, double car_x, double car_y, double car_yaw, double car_s, double car_d, vector<double> &previous_path_x, vector<double> &previous_path_y, int prev_size)
 {
   vector<double> ptsx;
   vector<double> ptsy;

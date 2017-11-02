@@ -16,7 +16,7 @@ using namespace std;
 // => at most 6 predictions (for now on) as we have 3 lanes
 
 // sort of simple scene detection
-vector<int> find_closest_objects(vector<vector<double>> &sensor_fusion, double car_s)
+vector<int> find_closest_objects(t_traj &sensor_fusion, double car_s)
 {
   vector<int> front = {-1, -1, -1}; // idx of closest object per lane
   vector<int> back = {-1, -1, -1}; // idx of closest object per lane
@@ -87,7 +87,7 @@ vector<int> find_closest_objects(vector<vector<double>> &sensor_fusion, double c
 
 // map of at most 6 predictions: with 50 points x 2 coord (x,y): 6 objects predicted over 1 second horizon
 // predictions map: a dictionnary { fusion_index : horizon * (x,y) }
-std::map< int, vector<vector<double> > > generate_predictions(vector<vector<double>> &sensor_fusion, double car_s, double car_d, int horizon)
+std::map< int, vector<vector<double> > > generate_predictions(t_traj &sensor_fusion, double car_s, double car_d, int horizon)
 {
   std::map<int, vector<vector<double> > > predictions; // map of at most 6 predicitons of "n_horizon" (x,y) coordinates
 
@@ -104,7 +104,7 @@ std::map< int, vector<vector<double> > > generate_predictions(vector<vector<doub
       double y = sensor_fusion[fusion_index][2];
       double vx = sensor_fusion[fusion_index][3];
       double vy = sensor_fusion[fusion_index][4];
-      vector<vector<double>> prediction; // vector of at most 6 predicitons of "n_horizon" (x,y) coordinates
+      t_traj prediction; // vector of at most 6 predicitons of "n_horizon" (x,y) coordinates
       for (int j = 0; j < horizon; j++)
       {
         prediction.push_back({x + vx * j*param_dt, y + vy * j*param_dt});

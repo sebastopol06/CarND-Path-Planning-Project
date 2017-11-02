@@ -15,7 +15,7 @@ public:
   * Constructor
   */
   Map(std::string map_file);
-  
+
   /**
   * Destructor
   */
@@ -28,7 +28,6 @@ public:
 
   void plot(void);
   double testError(double x, double y, double yaw); // (x,y) -> (s,d) -> (x,y) conversions and dump accuracy
-
 
 private:
   tk::spline spline_x;

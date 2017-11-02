@@ -1,6 +1,12 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+// Define new types
+#include <vector>
+typedef std::vector<double > t_coord;
+typedef std::vector<t_coord> t_traj;
+typedef std::vector<t_traj > t_trajSet;
+
 // For converting back and forth between radians and degrees.
 double deg2rad(double x);
 double rad2deg(double x);

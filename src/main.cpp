@@ -53,8 +53,8 @@ int main() {
   double ref_vel = 0.0; // mph
 
   // keep track of previous s and d paths: to initialize for continuity the new trajectory
-  vector<vector<double>> prev_path_s;
-  vector<vector<double>> prev_path_d;
+  t_traj prev_path_s;
+  t_traj prev_path_d;
   //////////////////////////////////////////////////////////////////////
 
 
@@ -96,7 +96,7 @@ int main() {
           	double end_path_d = j[1]["end_path_d"];
 
           	// Sensor Fusion Data, a list of all other cars on the same side of the road.
-            vector<vector<double>> sensor_fusion = j[1]["sensor_fusion"];
+            t_traj sensor_fusion = j[1]["sensor_fusion"];
 
           	json msgJson;
 
@@ -153,7 +153,7 @@ int main() {
             }
             int car_lane = get_lane(car_d);
 
-            vector<vector<double>> targets = behavior_planner_find_targets(sensor_fusion, prev_size, car_lane,
+            t_traj targets = behavior_planner_find_targets(sensor_fusion, prev_size, car_lane,
                                                                            car_s, car_d, ref_vel /* car_vel */);
 
 
@@ -170,9 +170,9 @@ int main() {
             car_lane = get_lane(car_d);
 
             vector<double> costs;
-            vector<vector<vector<double>>> trajectories;
-            vector<vector<vector<double>>> prev_paths_s;
-            vector<vector<vector<double>>> prev_paths_d;
+            t_trajSet trajectories;
+            t_trajSet prev_paths_s;
+            t_trajSet prev_paths_d;
 
             int target_lane;
             for (int i = 0; i < targets.size(); i++)
@@ -182,7 +182,7 @@ int main() {
               double target_time = 2.0; // TODO should be behavior_planner job
 
               // vector of (traj_x, traj_y)
-              vector<vector<double>> trajectory;
+              t_traj trajectory;
               if (param_trajectory_jmt)
               {
                 struct trajectory_jmt traj_jmt;

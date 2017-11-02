@@ -5,12 +5,12 @@
 
 using namespace std;
 
-vector<vector<double>> behavior_planner_find_targets(vector<vector<double>> &sensor_fusion, int prev_size, int lane, double car_s, double car_d, double ref_vel)
+t_traj behavior_planner_find_targets(t_traj &sensor_fusion, int prev_size, int lane, double car_s, double car_d, double ref_vel)
 {
-  vector<vector<double>> possible_targets;
+  t_traj possible_targets;
   bool too_close = false;
   int ref_vel_inc = 0; // -1 for max deceleration, 0 for constant speed, +1 for max acceleration
-  
+
   // find ref_v to use based on car in front of us
   for (int i = 0; i < sensor_fusion.size(); i++)
   {
@@ -22,19 +22,19 @@ vector<vector<double>> behavior_planner_find_targets(vector<vector<double>> &sen
       double vy = sensor_fusion[i][4];
       double check_speed = sqrt(vx*vx+vy*vy);
       double check_car_s = sensor_fusion[i][5];
-  
+
       // if using previous points can project s value outwards in time
       check_car_s+=((double)prev_size * param_dt * check_speed);
-  
+
       if ((check_car_s > car_s) && ((check_car_s - car_s) < param_dist_slow_down))
       {
         // do some logic here: lower reference velocity so we dont crash into the car infront of us
         //ref_vel = 29.5; //mph
         too_close = true;
-      }  
+      }
     }
   }
-  
+
   if (too_close)
   {
     //ref_vel -= 2 * .224; // 5 m.s-2 under the 10 requirement

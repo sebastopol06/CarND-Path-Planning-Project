@@ -9,7 +9,7 @@ using namespace std;
 
 
 // check max speed, acceleration, jerk
-bool check_max_capabilities(vector<vector<double>> &traj)
+bool check_max_capabilities(t_traj &traj)
 {
   double vx, ax, jx;
   double vy, ay, jy;
@@ -79,7 +79,7 @@ bool check_max_capabilities(vector<vector<double>> &traj)
 }
 
 
-double get_predicted_dmin(vector<vector<double>> &trajectory, std::map<int, vector<vector<double>>> &predictions)
+double get_predicted_dmin(t_traj &trajectory, std::map<int, t_traj> &predictions)
 {
   double dmin = 1e10;
 
@@ -88,7 +88,7 @@ double get_predicted_dmin(vector<vector<double>> &trajectory, std::map<int, vect
   {
     int fusion_index = it->first;
     //cout << "fusion_index=" << fusion_index << endl;
-    vector<vector<double>> prediction = it->second;
+    t_traj prediction = it->second;
 
     assert(prediction.size() == trajectory[0].size());
     assert(prediction.size() == trajectory[1].size());
@@ -121,7 +121,7 @@ double get_predicted_dmin(vector<vector<double>> &trajectory, std::map<int, vect
 }
 
 
-double cost_function(vector<vector<double>> &trajectory, int target_lane, double target_vel, std::map<int, vector<vector<double>>> &predictions, vector<vector<double>> &sensor_fusion, int car_lane)
+double cost_function(t_traj &trajectory, int target_lane, double target_vel, std::map<int, t_traj> &predictions, t_traj &sensor_fusion, int car_lane)
 {
   double cost = 0; // lower cost preferred
 
