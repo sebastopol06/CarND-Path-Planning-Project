@@ -17,10 +17,10 @@ struct trajectory_jmt JMT_init(double car_s, double car_d)
 {
   struct trajectory_jmt traj_jmt;
   // 50 x {s, s_dot, s_ddot}
-  vector<vector<double>> store_path_s(param_nb_points, {0, 0, 0});
-  vector<vector<double>> store_path_d(param_nb_points, {0, 0, 0});
+  vector<vector<double>> store_path_s(PARAM_NB_POINTS, {0, 0, 0});
+  vector<vector<double>> store_path_d(PARAM_NB_POINTS, {0, 0, 0});
 
-  for (int i = 0; i < param_nb_points; i++)
+  for (int i = 0; i < PARAM_NB_POINTS; i++)
   {
     store_path_s[i] = { car_s, 0, 0};
     store_path_d[i] = { car_d, 0, 0};
@@ -31,7 +31,7 @@ struct trajectory_jmt JMT_init(double car_s, double car_d)
 
   return traj_jmt;
 }
-  
+
 
 vector<double> JMT(vector< double> start, vector <double> end, double T)
 {
@@ -49,8 +49,8 @@ vector<double> JMT(vector< double> start, vector <double> end, double T)
 
     T     - The duration, in seconds, over which this maneuver should occur.
 
-    OUTPUT 
-    an array of length 6, each value corresponding to a coefficent in the polynomial 
+    OUTPUT
+    an array of length 6, each value corresponding to a coefficent in the polynomial
     s(t) = a_0 + a_1 * t + a_2 * t**2 + a_3 * t**3 + a_4 * t**4 + a_5 * t**5
 
     EXAMPLE
@@ -67,8 +67,8 @@ vector<double> JMT(vector< double> start, vector <double> end, double T)
          3*pow(T,2),  4*pow(T,3),  5*pow(T,4),
                 6*T, 12*pow(T,2), 20*pow(T,3);
 
-    b << end[0] - (start[0] + start[1]*T + 0.5*start[2]*T*T), 
-         end[1] - (start[1] + start[2]*T), 
+    b << end[0] - (start[0] + start[1]*T + 0.5*start[2]*T*T),
+         end[1] - (start[1] + start[2]*T),
          end[2] - start[2];
 
     x = A.inverse() * b;
@@ -112,19 +112,19 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
 {
   struct trajectory_jmt traj_jmt;
 
-  vector<vector<double>> new_path_s(param_nb_points, {0, 0, 0});
-  vector<vector<double>> new_path_d(param_nb_points, {0, 0, 0});
+  vector<vector<double>> new_path_s(PARAM_NB_POINTS, {0, 0, 0});
+  vector<vector<double>> new_path_d(PARAM_NB_POINTS, {0, 0, 0});
 
   //cout << "prev_size=" << prev_size << endl;
-  //int last_point = param_nb_points - prev_size - 1;
+  //int last_point = PARAM_NB_POINTS - prev_size - 1;
   int last_point;
-  if (param_truncated_prev_size < param_nb_points)
+  if (param_truncated_prev_size < PARAM_NB_POINTS)
   {
-    last_point = param_nb_points - previous_path_x.size() + prev_size - 1;
+    last_point = PARAM_NB_POINTS - previous_path_x.size() + prev_size - 1;
   }
   else
   {
-    last_point = param_nb_points - 1;
+    last_point = PARAM_NB_POINTS - 1;
   }
 
   /////////////////////////////////////////////////////////////
@@ -162,7 +162,7 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
     sf_ddot = 0;
     sf_dot = mph_to_ms(target_vel);
     //sf_dot = map.getSpeedToFrenet(sf_dot, si+50);
-    // this is a hack. To be fixed properly 
+    // this is a hack. To be fixed properly
     // the ratio should be related to curvature and d
     if (df >= 8)
     {
@@ -192,11 +192,11 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
 
   vector<double> next_x_vals;
   vector<double> next_y_vals;
-  
+
   for (int i = 0; i < prev_size; i++)
   {
-    new_path_s[i] = prev_path_s[param_nb_points - previous_path_x.size() + i];
-    new_path_d[i] = prev_path_d[param_nb_points - previous_path_x.size() + i];
+    new_path_s[i] = prev_path_s[PARAM_NB_POINTS - previous_path_x.size() + i];
+    new_path_d[i] = prev_path_d[PARAM_NB_POINTS - previous_path_x.size() + i];
 
     next_x_vals.push_back(previous_path_x[i]);
     next_y_vals.push_back(previous_path_y[i]);
@@ -204,7 +204,7 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
 
   //double t = 0.0; continuity point reused
   double t = param_dt;
-  for (int i = prev_size; i < param_nb_points; i++)
+  for (int i = prev_size; i < PARAM_NB_POINTS; i++)
   {
     double s = polyeval(poly_s, t);
     double s_dot = polyeval_dot(poly_s, t);
@@ -238,7 +238,7 @@ vector<vector<double>> generate_trajectory(int target_lane, double target_vel, d
 {
   vector<double> ptsx;
   vector<double> ptsy;
-  
+
   double ref_x = car_x;
   double ref_y = car_y;
   double ref_yaw = deg2rad(car_yaw);
@@ -247,10 +247,10 @@ vector<vector<double>> generate_trajectory(int target_lane, double target_vel, d
   {
     double prev_car_x = car_x - cos(car_yaw);
     double prev_car_y = car_y - sin(car_yaw);
-  
+
     ptsx.push_back(prev_car_x);
     ptsx.push_back(car_x);
-  
+
     ptsy.push_back(prev_car_y);
     ptsy.push_back(car_y);
   }
@@ -258,18 +258,18 @@ vector<vector<double>> generate_trajectory(int target_lane, double target_vel, d
   {
     ref_x = previous_path_x[prev_size-1];
     ref_y = previous_path_y[prev_size-1];
-  
+
     double ref_x_prev = previous_path_x[prev_size-2];
     double ref_y_prev = previous_path_y[prev_size-2];
     ref_yaw = atan2(ref_y-ref_y_prev, ref_x-ref_x_prev);
-  
+
     ptsx.push_back(ref_x_prev);
     ptsx.push_back(ref_x);
-  
+
     ptsy.push_back(ref_y_prev);
     ptsy.push_back(ref_y);
   }
-  
+
   //vector<double> next_wp0 = map.getXY(car_s+30, get_dcenter(target_lane));
   //vector<double> next_wp1 = map.getXY(car_s+60, get_dcenter(target_lane));
   //vector<double> next_wp2 = map.getXY(car_s+90, get_dcenter(target_lane));
@@ -277,71 +277,71 @@ vector<vector<double>> generate_trajectory(int target_lane, double target_vel, d
   vector<double> next_wp0 = map.getXYspline(car_s+30, get_dcenter(target_lane));
   vector<double> next_wp1 = map.getXYspline(car_s+60, get_dcenter(target_lane));
   vector<double> next_wp2 = map.getXYspline(car_s+90, get_dcenter(target_lane));
-  
-  
+
+
   ptsx.push_back(next_wp0[0]);
   ptsx.push_back(next_wp1[0]);
   ptsx.push_back(next_wp2[0]);
-  
+
   ptsy.push_back(next_wp0[1]);
   ptsy.push_back(next_wp1[1]);
   ptsy.push_back(next_wp2[1]);
-  
-  
+
+
   for (int i = 0; i < ptsx.size(); i++)
   {
     // shift car reference angle to 0 degrees
     // transformation to local car's coordinates (cf MPC)
     // last point of previous path at origin and its angle at zero degree
-  
+
     // shift and rotation
     double shift_x = ptsx[i]-ref_x;
     double shift_y = ptsy[i]-ref_y;
-  
+
     ptsx[i] = (shift_x * cos(0-ref_yaw) - shift_y * sin(0 - ref_yaw));
     ptsy[i] = (shift_x * sin(0-ref_yaw) + shift_y * cos(0 - ref_yaw));
   }
-  
-  
+
+
   tk::spline spl;
   spl.set_points(ptsx, ptsy);
-  
+
   vector<double> next_x_vals;
   vector<double> next_y_vals;
-  
+
   for (int i = 0; i < prev_size; i++)
   {
     next_x_vals.push_back(previous_path_x[i]);
     next_y_vals.push_back(previous_path_y[i]);
   }
-  
+
   // Calculate how to break up spline points so that we travel at our desired reference velocity
   double target_x = 30.0;
   double target_y = spl(target_x);
   double target_dist = sqrt(target_x*target_x + target_y*target_y);
-  
+
   double x_add_on = 0;
-  
+
   // fill up the rest of our path planner after filing it with previous points
   // here we will always output 50 points
-  for (int i = 1; i <= param_nb_points - prev_size; i++)
+  for (int i = 1; i <= PARAM_NB_POINTS - prev_size; i++)
   {
     double N = (target_dist / (param_dt * mph_to_ms(target_vel))); // divide by 2.24: mph -> m/s
     double x_point = x_add_on + target_x/N;
     double y_point = spl(x_point);
-  
+
     x_add_on = x_point;
-  
+
     double x_ref = x_point; // x_ref IS NOT ref_x !!!
     double y_ref = y_point;
-  
+
     // rotate back to normal after rotating it earlier
     x_point = (x_ref * cos(ref_yaw) - y_ref * sin(ref_yaw));
     y_point = (x_ref * sin(ref_yaw) + y_ref * cos(ref_yaw));
-  
+
     x_point += ref_x;
     y_point += ref_y;
-  
+
     next_x_vals.push_back(x_point);
     next_y_vals.push_back(y_point);
   }

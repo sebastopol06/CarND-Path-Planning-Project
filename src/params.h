@@ -11,7 +11,7 @@ const double max_s = 6945.554;
 const double param_center_x = 1000;
 const double param_center_y = 2000;
 
-const int param_nb_points = 50; // in the trajectory sent to simulator
+const int PARAM_NB_POINTS = 50; // in the trajectory sent to simulator
 const double param_dt = 0.02; // 1 point every 0.02 s
 
 const double param_lane_width = 4.0; // meters

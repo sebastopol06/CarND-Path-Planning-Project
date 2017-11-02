@@ -64,7 +64,7 @@ bool check_max_capabilities(vector<vector<double>> &traj)
       max_acc = acc;
   }
 
-  jerk_per_second = total_jerk / (param_nb_points * param_dt);
+  jerk_per_second = total_jerk / (PARAM_NB_POINTS * param_dt);
 
   if (roundf(max_vel) > param_max_speed || roundf(max_acc) > param_max_accel || jerk_per_second > param_max_jerk)
   {
@@ -105,7 +105,7 @@ double get_predicted_dmin(vector<vector<double>> &trajectory, std::map<int, vect
       {
         dmin = dist;
       }
-      //cout << "dist[" << i << "]=" << dist << endl; 
+      //cout << "dist[" << i << "]=" << dist << endl;
       //if (dist <= param_dist_collision)
       //{
       //  cout << "=====> DMIN = " << dmin << endl;

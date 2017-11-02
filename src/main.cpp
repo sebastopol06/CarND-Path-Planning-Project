@@ -73,12 +73,12 @@ int main() {
 
       if (s != "") {
         auto j = json::parse(s);
-        
+
         string event = j[0].get<string>();
-        
+
         if (event == "telemetry") {
           // j[1] is the data JSON object
-          
+
         	// Main car's localization Data
           	double car_x = j[1]["x"];
           	double car_y = j[1]["y"];
@@ -91,7 +91,7 @@ int main() {
           	vector<double> previous_path_x = j[1]["previous_path_x"];
           	vector<double> previous_path_y = j[1]["previous_path_y"];
 
-          	// Previous path's end s and d values 
+          	// Previous path's end s and d values
           	double end_path_s = j[1]["end_path_s"];
           	double end_path_d = j[1]["end_path_d"];
 
@@ -120,7 +120,7 @@ int main() {
             map.testError(car_x, car_y, car_yaw);
 
             int prev_size = previous_path_x.size();
-            cout << "prev_size=" << prev_size << " car_x=" << car_x << " car_y=" << car_y << " car_s=" << 
+            cout << "prev_size=" << prev_size << " car_x=" << car_x << " car_y=" << car_y << " car_s=" <<
                     car_s << " car_d=" << car_d << " car_speed=" << car_speed << " ref_vel=" << ref_vel << endl;
 
             vector<double> frenet_car = map.getFrenet(car_x, car_y, deg2rad(car_yaw));
@@ -137,7 +137,7 @@ int main() {
             }
 
             // --- 6 car predictions x 50 points x 2 coord (x,y): 6 objects predicted over 1 second horizon ---
-            std::map<int, vector<vector<double> > > predictions = generate_predictions(sensor_fusion, car_s, car_d, param_nb_points /* 50 */);
+            std::map<int, vector<vector<double> > > predictions = generate_predictions(sensor_fusion, car_s, car_d, PARAM_NB_POINTS /* 50 */);
 
 
 
@@ -153,7 +153,7 @@ int main() {
             }
             int car_lane = get_lane(car_d);
 
-            vector<vector<double>> targets = behavior_planner_find_targets(sensor_fusion, prev_size, car_lane, 
+            vector<vector<double>> targets = behavior_planner_find_targets(sensor_fusion, prev_size, car_lane,
                                                                            car_s, car_d, ref_vel /* car_vel */);
 
 
@@ -188,7 +188,7 @@ int main() {
                 struct trajectory_jmt traj_jmt;
 
                 // generate JMT trajectory in s and d: converted then to (x,y) for trajectory output
-                traj_jmt = generate_trajectory_jmt(target_lane, target_vel, target_time, map, car_x, car_y, car_yaw, 
+                traj_jmt = generate_trajectory_jmt(target_lane, target_vel, target_time, map, car_x, car_y, car_yaw,
                                                      car_s, car_d, previous_path_x, previous_path_y, prev_size, prev_path_s, prev_path_d);
                 trajectory = traj_jmt.trajectory;
                 prev_paths_s.push_back(traj_jmt.path_s);
@@ -197,7 +197,7 @@ int main() {
               else
               {
                 // generate SPLINE trajectory in x and y
-                trajectory = generate_trajectory(target_lane, target_vel, target_time, map, car_x, car_y, car_yaw, 
+                trajectory = generate_trajectory(target_lane, target_vel, target_time, map, car_x, car_y, car_yaw,
                                                      car_s, car_d, previous_path_x, previous_path_y, prev_size);
               }
 
@@ -243,7 +243,7 @@ int main() {
 
           	//this_thread::sleep_for(chrono::milliseconds(1000));
           	ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-          
+
         }
       } else {
         // Manual driving
