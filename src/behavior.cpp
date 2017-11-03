@@ -1,7 +1,6 @@
 #include "behavior.h"
 #include "params.h"
 #include "utility.h"
-#include <cassert>
 
 using namespace std;
 
@@ -24,7 +23,7 @@ t_traj behavior_planner_find_targets(t_traj &sensor_fusion, int prev_size, int l
       double check_car_s = sensor_fusion[i][5];
 
       // if using previous points can project s value outwards in time
-      check_car_s+=((double)prev_size * param_dt * check_speed);
+      check_car_s+=((double)prev_size * PARAM_DT * check_speed);
 
       if ((check_car_s > car_s) && ((check_car_s - car_s) < param_dist_slow_down))
       {
@@ -75,7 +74,7 @@ t_traj behavior_planner_find_targets(t_traj &sensor_fusion, int prev_size, int l
       break;
   }
 
-  vector<double> backup_vel; // only lower speeds so far ...
+  t_coord backup_vel; // only lower speeds so far ...
   switch (ref_vel_inc)
   {
     case 1:

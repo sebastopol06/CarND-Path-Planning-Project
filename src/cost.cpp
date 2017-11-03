@@ -1,14 +1,9 @@
 #include "cost.h"
-#include "utility.h"
-#include "params.h"
-
-#include <cassert>
-#include <cmath>
 
 using namespace std;
 
-
 // check max speed, acceleration, jerk
+// Returns bool
 bool check_max_capabilities(t_traj &traj)
 {
   double vx, ax, jx;
@@ -35,25 +30,25 @@ bool check_max_capabilities(t_traj &traj)
     y_2 = traj[1][t-2];
     y_3 = traj[1][t-3];
 
-    vx = (x - x_1) / param_dt;
-    vy = (y - y_1) / param_dt;
+    vx = (x - x_1) / PARAM_DT;
+    vy = (y - y_1) / PARAM_DT;
 
-    ax = (x - 2*x_1 + x_2) / (param_dt * param_dt);
-    ay = (y - 2*y_1 + y_2) / (param_dt * param_dt);
+    ax = (x - 2*x_1 + x_2) / (PARAM_DT * PARAM_DT);
+    ay = (y - 2*y_1 + y_2) / (PARAM_DT * PARAM_DT);
 
     // rounding to 2 decimals (cm precision) to ensure numerical stability
     jx = (x - 3*x_1 + 3*x_2 - x_3);
     jx = roundf(jx * 100) / 100;
-    jx = jx / (param_dt * param_dt * param_dt);
+    jx = jx / (PARAM_DT * PARAM_DT * PARAM_DT);
     jy = (y - 3*y_1 + 3*y_2 - y_3);
     jy = roundf(jy * 100) / 100;
-    jy = jy / (param_dt * param_dt * param_dt);
+    jy = jy / (PARAM_DT * PARAM_DT * PARAM_DT);
 
     vel = sqrt(vx*vx + vy*vy);
     acc = sqrt(ax*ax + ay*ay);
     jerk = sqrt(jx*jx + jy*jy);
 
-    total_jerk += jerk * param_dt;
+    total_jerk += jerk /** PARAM_DT*/; // Issue: [m.s-2] = jerk [m.s-2] * [s]
 
     //cout << "jx=" << jx << " jy=" << jy << endl;
     //cout << "vel=" << vel << " acc=" << acc << " jerk=" << jerk << endl;
@@ -64,7 +59,7 @@ bool check_max_capabilities(t_traj &traj)
       max_acc = acc;
   }
 
-  jerk_per_second = total_jerk / (PARAM_NB_POINTS * param_dt);
+  jerk_per_second = total_jerk / (PARAM_NB_POINTS /** PARAM_DT*/);
 
   if (roundf(max_vel) > param_max_speed || roundf(max_acc) > param_max_accel || jerk_per_second > param_max_jerk)
   {
@@ -78,12 +73,11 @@ bool check_max_capabilities(t_traj &traj)
   }
 }
 
-
 double get_predicted_dmin(t_traj &trajectory, std::map<int, t_traj> &predictions)
 {
   double dmin = 1e10;
 
-  std::map<int, vector<vector<double> > >::iterator it = predictions.begin();
+  std::map<int, t_traj>::iterator it = predictions.begin(); // <int, t_traj> = <fusion_index, prediction>
   while(it != predictions.end())
   {
     int fusion_index = it->first;
@@ -97,10 +91,9 @@ double get_predicted_dmin(t_traj &trajectory, std::map<int, t_traj> &predictions
     {
       double obj_x = prediction[i][0];
       double obj_y = prediction[i][1];
-      double ego_x = trajectory[0][i];
-      double ego_y = trajectory[1][i];
+      t_coord ego{trajectory[0][i], trajectory[1][i]};
 
-      double dist = distance(ego_x, ego_y, obj_x, obj_y);
+      double dist = distance(ego[0], ego[1], obj_x, obj_y);
       if (dist < dmin)
       {
         dmin = dist;
@@ -123,19 +116,17 @@ double get_predicted_dmin(t_traj &trajectory, std::map<int, t_traj> &predictions
 
 double cost_function(t_traj &trajectory, int target_lane, double target_vel, std::map<int, t_traj> &predictions, t_traj &sensor_fusion, int car_lane)
 {
-  double cost = 0; // lower cost preferred
-
   double cost_feasibility = 0; // vs collisions, vs vehicle capabilities
-  double cost_safety = 0; // vs buffer distance, vs visibility
-  double cost_legality = 0; // vs speed limits
-  double cost_comfort = 0; // vs jerk
-  double cost_efficiency = 0; // vs desired lane and time to goal
+  double cost_safety      = 0; // vs buffer distance, vs visibility
+  double cost_legality    = 0; // vs speed limits
+  double cost_comfort     = 0; // vs jerk
+  double cost_efficiency  = 0; // vs desired lane and time to goal
 
   double weight_feasibility = 100000; // vs collisions, vs vehicle capabilities
-  double weight_safety      = 10000; // vs buffer distance, vs visibility or curvature
-  double weight_legality    = 1000; // vs speed limits
-  double weight_comfort     = 100; // vs jerk
-  double weight_efficiency  = 10; // vs target lane, target speed and time to goal
+  double weight_safety      =  10000; // vs buffer distance, vs visibility or curvature
+  double weight_legality    =   1000; // vs speed limits
+  double weight_comfort     =    100; // vs jerk
+  double weight_efficiency  =     10; // vs target lane, target speed and time to goal
 
   // 1) FEASIBILITY cost
   // TODO: handled via safety so far
@@ -147,7 +138,7 @@ double cost_function(t_traj &trajectory, int target_lane, double target_vel, std
   //{
   //  cost_feasibility += 1;
   //}
-  cost = cost + weight_feasibility * cost_feasibility;
+  // TBA
 
   // 2) SAFETY cost
   double dmin = get_predicted_dmin(trajectory, predictions);
@@ -160,34 +151,41 @@ double cost_function(t_traj &trajectory, int target_lane, double target_vel, std
   {
     cost_safety = 0;
   }
-  cost = cost + weight_safety * cost_safety;
 
   // 3) LEGALITY cost
-  cost = cost + weight_legality * cost_legality;
+  // TBA
 
   // 4) COMFORT cost
-  cost = cost + weight_comfort * cost_comfort;
+  // TBA
 
   // 5) EFFICIENCY cost
   cost_efficiency = param_max_speed_mph - target_vel;
-  cost = cost + weight_efficiency * cost_efficiency;
 
-  // 5) LANE cost
-  double ego_x = trajectory[0][0];
-  double ego_y = trajectory[1][0];
+  double cost =
+    weight_feasibility * cost_feasibility + // not used yet
+    weight_safety      * cost_safety      +
+    weight_legality    * cost_legality    + // not used yet
+    weight_comfort     * cost_comfort     + // not used yet
+    weight_efficiency  * cost_efficiency;
 
+    cout << "cost safety    =" << weight_safety      * cost_safety      << endl;
+    cout << "cost efficiency=" << weight_efficiency  * cost_efficiency  << endl;
+
+  t_coord ego{trajectory[0][0], trajectory[1][0]};
+  copy(ego.begin(), ego.end(), ostream_iterator<double>(cout, " ")); // cout whole vector via copy trick
 
   bool free_lane = true;
 
-  std::map<int, vector<vector<double> > >::iterator it = predictions.begin();
+  std::map<int, vector<vector<double>>>::iterator it = predictions.begin();
+  // Sensor fusion: vector of doubles [id, x, y, cx, vy, s, d], stored in vector (forall cars)
   while(it != predictions.end())
   {
     int fusion_index = it->first;
     double obj_d = sensor_fusion[fusion_index][6];
 
     double obj_x = sensor_fusion[fusion_index][1];
-    double obj_y = sensor_fusion[fusion_index][1];
-    double dist = distance(ego_x, ego_y, obj_x, obj_y);
+    double obj_y = sensor_fusion[fusion_index][2];
+    double dist = distance(ego[0], ego[1], obj_x, obj_y);
 
     if (get_lane(obj_d) == target_lane)
     {

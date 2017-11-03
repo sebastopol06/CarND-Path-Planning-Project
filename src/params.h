@@ -12,7 +12,7 @@ const double param_center_x = 1000;
 const double param_center_y = 2000;
 
 const int PARAM_NB_POINTS = 50; // in the trajectory sent to simulator
-const double param_dt = 0.02; // 1 point every 0.02 s
+const double PARAM_DT = 0.02; // 1 point every 0.02 s
 
 const double param_lane_width = 4.0; // meters
 
@@ -24,7 +24,7 @@ const double param_max_jerk  = 10; // m.s-3 average jerk over 1 second
 
 const double param_fov = 70.0; // Field Of View
 
-const double param_max_speed_inc = param_max_accel * param_dt; // m.s-1 per 0.02 sec
+const double param_max_speed_inc = param_max_accel * PARAM_DT; // m.s-1 per 0.02 sec
 const double param_max_speed_inc_mph = ms_to_mph(param_max_speed_inc);
 
 const double param_dist_slow_down = 30; // when a car is 30 m ahead of us => adjust speed if needed

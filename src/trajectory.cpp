@@ -200,7 +200,7 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
   }
 
   //double t = 0.0; continuity point reused
-  double t = param_dt;
+  double t = PARAM_DT;
   for (int i = prev_size; i < PARAM_NB_POINTS; i++)
   {
     double s = polyeval(poly_s, t);
@@ -219,7 +219,7 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
     next_x_vals.push_back(point_xy[0]);
     next_y_vals.push_back(point_xy[1]);
 
-    t += param_dt;
+    t += PARAM_DT;
   }
 
   traj_jmt.trajectory = { next_x_vals, next_y_vals};
@@ -323,7 +323,7 @@ t_traj generate_trajectory(int target_lane, double target_vel, double target_tim
   // here we will always output 50 points
   for (int i = 1; i <= PARAM_NB_POINTS - prev_size; i++)
   {
-    double N = (target_dist / (param_dt * mph_to_ms(target_vel))); // divide by 2.24: mph -> m/s
+    double N = (target_dist / (PARAM_DT * mph_to_ms(target_vel))); // divide by 2.24: mph -> m/s
     double x_point = x_add_on + target_x/N;
     double y_point = spl(x_point);
 

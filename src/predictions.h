@@ -6,7 +6,8 @@
 #include <vector>
 #include <map>
 
+#include "utility.h"
 
-std::map<int, std::vector<std::vector<double> > > generate_predictions(std::vector<std::vector<double>> &sensor_fusion, double car_s, double car_d, int horizon);
+std::map<int, t_traj> generate_predictions(t_traj &sensor_fusion, double car_s, double car_d, int horizon);
 
 #endif // PREDICTIONS_H

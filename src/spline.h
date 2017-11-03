@@ -26,10 +26,8 @@
 #ifndef TK_SPLINE_H
 #define TK_SPLINE_H
 
-#include <cstdio>
-#include <cassert>
-#include <vector>
 #include <algorithm>
+#include "utility.h"
 
 // unnamed namespace only because the implementation is in this
 // header file and we don't want to export symbols to the obj files

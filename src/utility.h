@@ -1,13 +1,16 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-// Define new types
+#include <cstdio>
+#include <cassert>
 #include <vector>
+
+// Define new types
 typedef std::vector<double > t_coord;
 typedef std::vector<t_coord> t_traj;
 typedef std::vector<t_traj > t_trajSet;
 
-// For converting back and forth between radians and degrees.
+// For converting back and forth bestd::vector<double>tween radians and degrees.
 double deg2rad(double x);
 double rad2deg(double x);
 double mph_to_ms(double mph); // m.s-1
@@ -23,6 +26,5 @@ double get_dcenter(int lane);
 int get_lane(double d);
 
 double distance(double x1, double y1, double x2, double y2);
-
 
 #endif // UTILITY_H

@@ -5,26 +5,22 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <map>
+
 #include "Eigen-3.3/Eigen/Core"
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
-
-//#include "utility.h"
 #include "map.h"
 #include "behavior.h"
 #include "trajectory.h"
 #include "cost.h"
 #include "predictions.h"
-
 #include "params.h"
-
-#include <map>
 
 using namespace std;
 
 // for convenience
 using json = nlohmann::json;
-
 
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
@@ -47,7 +43,7 @@ int main() {
 
   //////////////////////////////////////////////////////////////////////
   Map map(map_file_);
-  map.plot();
+  // map.plot();
 
   bool start = true;
   double ref_vel = 0.0; // mph
@@ -56,7 +52,6 @@ int main() {
   t_traj prev_path_s;
   t_traj prev_path_d;
   //////////////////////////////////////////////////////////////////////
-
 
   h.onMessage([&map, &ref_vel, &start, &prev_path_s, &prev_path_d](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {

@@ -1,6 +1,5 @@
 #include "predictions.h"
 #include "params.h"
-#include <cassert>
 
 using namespace std;
 
@@ -92,7 +91,7 @@ std::map< int, vector<vector<double> > > generate_predictions(t_traj &sensor_fus
   std::map<int, vector<vector<double> > > predictions; // map of at most 6 predicitons of "n_horizon" (x,y) coordinates
 
   // vector of indexes in sensor_fusion
-  vector<int> closest_objects = find_closest_objects(sensor_fusion, car_s); 
+  vector<int> closest_objects = find_closest_objects(sensor_fusion, car_s);
 
   for (int i = 0; i < closest_objects.size(); i++)
   {
@@ -107,7 +106,7 @@ std::map< int, vector<vector<double> > > generate_predictions(t_traj &sensor_fus
       t_traj prediction; // vector of at most 6 predicitons of "n_horizon" (x,y) coordinates
       for (int j = 0; j < horizon; j++)
       {
-        prediction.push_back({x + vx * j*param_dt, y + vy * j*param_dt});
+        prediction.push_back({x + vx * j*PARAM_DT, y + vy * j*PARAM_DT});
       }
       //predictions.push_back(prediction);
       predictions[fusion_index] = prediction;
