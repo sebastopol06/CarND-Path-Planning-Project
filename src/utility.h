@@ -5,6 +5,19 @@
 #include <cassert>
 #include <vector>
 
+// Computationnal defines
+#define INF 0xFFFFFFFF
+enum {
+  ID = 0, // 0
+  X  = 1, // 1
+  Y  = 2, // 2
+  VX = 3, // 3
+  VY = 4, // 4
+  S  = 5, // 5
+  D  = 6, // 6
+  SIZE    // 7
+};
+
 // Define new types
 typedef std::vector<double > t_coord;
 typedef std::vector<t_coord> t_traj;

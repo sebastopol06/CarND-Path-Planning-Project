@@ -25,7 +25,7 @@ t_traj behavior_planner_find_targets(t_traj &sensor_fusion, int prev_size, int l
       // if using previous points can project s value outwards in time
       check_car_s+=((double)prev_size * PARAM_DT * check_speed);
 
-      if ((check_car_s > car_s) && ((check_car_s - car_s) < param_dist_slow_down))
+      if ((check_car_s > car_s) && ((check_car_s - car_s) < PARAM_DIST_SLOW_DOWN))
       {
         // do some logic here: lower reference velocity so we dont crash into the car infront of us
         //ref_vel = 29.5; //mph
@@ -37,15 +37,15 @@ t_traj behavior_planner_find_targets(t_traj &sensor_fusion, int prev_size, int l
   if (too_close)
   {
     //ref_vel -= 2 * .224; // 5 m.s-2 under the 10 requirement
-    ref_vel -= param_max_speed_inc_mph;
+    ref_vel -= PARAM_MAX_SPEED_INC_mph;
     ref_vel = max(ref_vel, 0.0); // no backwards driving ... just in case
     ref_vel_inc = -1;
   }
-  else if (ref_vel < param_max_speed_mph)
+  else if (ref_vel < PARAM_MAX_SPEED_MPH)
   {
     //ref_vel += 2 * .224;
-    ref_vel += param_max_speed_inc_mph;
-    ref_vel = min(ref_vel, param_max_speed_mph);
+    ref_vel += PARAM_MAX_SPEED_INC_mph;
+    ref_vel = min(ref_vel, PARAM_MAX_SPEED_MPH);
     ref_vel_inc = +1;
   }
 
@@ -78,18 +78,18 @@ t_traj behavior_planner_find_targets(t_traj &sensor_fusion, int prev_size, int l
   switch (ref_vel_inc)
   {
     case 1:
-      backup_vel.push_back(ref_vel - param_max_speed_inc_mph);
-      backup_vel.push_back(ref_vel - 2 * param_max_speed_inc_mph);
+      backup_vel.push_back(ref_vel - PARAM_MAX_SPEED_INC_mph);
+      backup_vel.push_back(ref_vel - 2 * PARAM_MAX_SPEED_INC_mph);
       break;
     case 0: // already max speed
-      backup_vel.push_back(ref_vel - param_max_speed_inc_mph);
+      backup_vel.push_back(ref_vel - PARAM_MAX_SPEED_INC_mph);
       break;
     case -1:
       // emergency breaking
-      backup_vel.push_back(ref_vel - param_max_speed_inc_mph);
+      backup_vel.push_back(ref_vel - PARAM_MAX_SPEED_INC_mph);
 
       // emergency acceleration (dangerous here)
-      //backup_vel.push_back(ref_vel + param_max_speed_inc_mph);
+      //backup_vel.push_back(ref_vel + PARAM_MAX_SPEED_INC_mph);
       break;
     default:
       assert(1 == 0); // something went wrong

@@ -5,8 +5,8 @@ using namespace std;
 
 //double get_sdistance(double s1, double s2)
 //{
-//  // account for s wraparound at max_s
-//  double sdistance = min( fabs(s1 - s2), min(fabs((s1+max_s) - s2), fabs(s1 - (s2+max_s))) );
+//  // account for s wraparound at MAX_S
+//  double sdistance = min( fabs(s1 - s2), min(fabs((s1+MAX_S) - s2), fabs(s1 - (s2+MAX_S))) );
 //  return sdistance;
 //}
 
@@ -24,21 +24,21 @@ vector<int> find_closest_objects(t_traj &sensor_fusion, double car_s)
   vector<double> back_dmin = {1e10, 1e10, 1e10}; // per lane
 
   // Handle FOV and s wraparound
-  double sfov_min = car_s - param_fov;
-  double sfov_max = car_s + param_fov;
+  double sfov_min = car_s - PARAM_FOV;
+  double sfov_max = car_s + PARAM_FOV;
   double sfov_shit = 0;
   if (sfov_min < 0)
   {
     sfov_shit = -sfov_min;
   }
-  else if (sfov_max > max_s)
+  else if (sfov_max > MAX_S)
   {
-    sfov_shit = max_s - sfov_max;
+    sfov_shit = MAX_S - sfov_max;
   }
   sfov_min += sfov_shit;
   sfov_max += sfov_shit;
-  assert(sfov_min >= 0 && sfov_min <= max_s);
-  assert(sfov_max >= 0 && sfov_max <= max_s);
+  assert(sfov_min >= 0 && sfov_min <= MAX_S);
+  assert(sfov_max >= 0 && sfov_max <= MAX_S);
 
   car_s += sfov_shit;
 

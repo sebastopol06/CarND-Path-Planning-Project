@@ -154,7 +154,7 @@ int main() {
 
 
             // -- short time horizon (close to 100 msec when possible; not lower bcz of simulator latency) for trajectory (re)generation ---
-            prev_size = min(prev_size, param_truncated_prev_size);
+            prev_size = min(prev_size, PARAM_TRUNCATED_PREV_SIZE);
             vector<double> frenet_close;
             if (prev_size > 0) // prev_size typically close to 100 msec
             {
@@ -178,7 +178,7 @@ int main() {
 
               // vector of (traj_x, traj_y)
               t_traj trajectory;
-              if (param_trajectory_jmt)
+              if (PARAM_TRAJECTORY_JMT)
               {
                 struct trajectory_jmt traj_jmt;
 
@@ -214,7 +214,7 @@ int main() {
             }
             target_lane = targets[min_cost_index][0];
             ref_vel = targets[min_cost_index][1];
-            if (param_trajectory_jmt)
+            if (PARAM_TRAJECTORY_JMT)
             {
               prev_path_s = prev_paths_s[min_cost_index];
               prev_path_d = prev_paths_d[min_cost_index];

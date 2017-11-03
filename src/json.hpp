@@ -1255,7 +1255,7 @@ class basic_json
     In this class, the object's limit of nesting is not constraint explicitly.
     However, a maximum depth of nesting may be introduced by the compiler or
     runtime environment. A theoretical limit can be queried by calling the
-    @ref max_size function of a JSON object.
+    @ref MAX_Size function of a JSON object.
 
     #### Storage
 
@@ -1314,7 +1314,7 @@ class basic_json
     In this class, the array's limit of nesting is not constraint explicitly.
     However, a maximum depth of nesting may be introduced by the compiler or
     runtime environment. A theoretical limit can be queried by calling the
-    @ref max_size function of a JSON array.
+    @ref MAX_Size function of a JSON array.
 
     #### Storage
 
@@ -5056,7 +5056,7 @@ class basic_json
     types.,size}
 
     @sa @ref empty() -- checks whether the container is empty
-    @sa @ref max_size() -- returns the maximal number of elements
+    @sa @ref MAX_Size() -- returns the maximal number of elements
 
     @since version 1.0.0
     */
@@ -5105,11 +5105,11 @@ class basic_json
             boolean     | `1` (same as `size()`)
             string      | `1` (same as `size()`)
             number      | `1` (same as `size()`)
-            object      | result of function `object_t::max_size()`
-            array       | result of function `array_t::max_size()`
+            object      | result of function `object_t::MAX_Size()`
+            array       | result of function `array_t::MAX_Size()`
 
     @complexity Constant, as long as @ref array_t and @ref object_t satisfy
-    the Container concept; that is, their `max_size()` functions have constant
+    the Container concept; that is, their `MAX_Size()` functions have constant
     complexity.
 
     @requirement This function helps `basic_json` satisfying the
@@ -5119,32 +5119,32 @@ class basic_json
     - Has the semantics of returning `b.size()` where `b` is the largest
       possible JSON value.
 
-    @liveexample{The following code calls `max_size()` on the different value
-    types. Note the output is implementation specific.,max_size}
+    @liveexample{The following code calls `MAX_Size()` on the different value
+    types. Note the output is implementation specific.,MAX_Size}
 
     @sa @ref size() -- returns the number of elements
 
     @since version 1.0.0
     */
-    size_type max_size() const noexcept
+    size_type MAX_Size() const noexcept
     {
         switch (m_type)
         {
             case value_t::array:
             {
-                // delegate call to array_t::max_size()
-                return m_value.array->max_size();
+                // delegate call to array_t::MAX_Size()
+                return m_value.array->MAX_Size();
             }
 
             case value_t::object:
             {
-                // delegate call to object_t::max_size()
-                return m_value.object->max_size();
+                // delegate call to object_t::MAX_Size()
+                return m_value.object->MAX_Size();
             }
 
             default:
             {
-                // all other types have max_size() == size()
+                // all other types have MAX_Size() == size()
                 return size();
             }
         }

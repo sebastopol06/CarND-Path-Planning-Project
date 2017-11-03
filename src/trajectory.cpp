@@ -115,7 +115,7 @@ struct trajectory_jmt generate_trajectory_jmt(int target_lane, double target_vel
   //cout << "prev_size=" << prev_size << endl;
   //int last_point = PARAM_NB_POINTS - prev_size - 1;
   int last_point;
-  if (param_truncated_prev_size < PARAM_NB_POINTS)
+  if (PARAM_TRUNCATED_PREV_SIZE < PARAM_NB_POINTS)
   {
     last_point = PARAM_NB_POINTS - previous_path_x.size() + prev_size - 1;
   }
